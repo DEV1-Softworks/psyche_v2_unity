@@ -5,23 +5,37 @@ using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour
 {
+    [SerializeField]
+    private float speed;
     public InputMaster controls;
+    private Vector2 moveInput;
+    private Rigidbody2D rigidBody;
+
+    public Animator animator;
 
     void Awake()
     {
         controls = new InputMaster();
+
+        rigidBody = GetComponent<Rigidbody2D>();
+
+        if (rigidBody is null)
+            Debug.LogError("Rigidbody2D is NULL");
+
         controls.Player.Shoot.performed += _ => Shoot();
-        controls.Player.Movement.performed += ctx => Move(ctx.ReadValue<Vector2>());
+    }
+
+    void FixedUpdate()
+    {
+        moveInput = controls.Player.Movement.ReadValue<Vector2>();
+        moveInput.y = 0;
+        rigidBody.velocity = moveInput * speed;
+        animator.SetFloat("Speed", moveInput.x);
     }
 
     void Shoot()
     {
         Debug.Log("We shot");
-    }
-
-    void Move(Vector2 direction)
-    {
-        Debug.Log("Player wants to move: " + direction);
     }
 
     private void OnEnable()
